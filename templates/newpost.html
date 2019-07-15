@@ -4,9 +4,11 @@
     <h1>Build a Blog</h1>
     <form method='post'>
         <label>
-            New Blog:
+            Title for Your New Blog:
             <input type="text" name='blog' />
         </label>
+            Your New Blog:
+        <textarea name="text" >{0}</textarea>
         <input type="submit" value='Add Blog' />
     </form>
 
@@ -19,9 +21,9 @@
         <ul>
             {% for blog in blogs %}
             <li>{{blog.name}}
-                <form method="POST" action="/delete-blog" style="display:inline-block;">
+                <form method="POST" action="/add-blog" style="display:inline-block;">
                     <input type="hidden" name="blog-id" value="{{blog.id}}" />
-                    <input type="submit" value="Done!" />
+                    <input type="submit" value="Submitted" />
                 </form>
             </li>
             {% endfor %}
@@ -30,8 +32,6 @@
     {% endif %}
 
     <hr />
-
-    <h2>Completed</h2>
 
     <ul>
         {% for blog in blogs %}

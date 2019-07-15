@@ -5,6 +5,7 @@ app = Flask(__name__)
 app.config['DEBUG'] = True 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:admin@localhost:3306/build-a-blog'
 app.config['SQLALCHEMY_ECHO'] = True
+app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False 
 db = SQLAlchemy(app)
 
 class Blog(db.Model):
@@ -26,13 +27,8 @@ def index():
         db.session.add(new_blog)
         db.session.commit()
 
-    blogs = Blog.query.filter_by(completed=False).all()
-    completed_blogs = Blog.query.filter_by(completed=True).all()
     return render_template('blog.html',title="Build a Blog", 
-        blogs=blogs, completed_blogs=completed_blogs)
+        blogs=blogs)
 
 
-
-
-
-    app.run()
+app.run()
