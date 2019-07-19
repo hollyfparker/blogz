@@ -3,7 +3,7 @@ from flask_sqlalchemy import SQLAlchemy
 
 app = Flask(__name__)
 app.config['DEBUG'] = True 
-app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://build-a-blog:admin@localhost:3306/build-a-blog'
+app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:admin@localhost:3306/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
 db = SQLAlchemy(app)
 
@@ -11,10 +11,22 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
     body = db.Column(db.Text)
+    owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
     def __init__(self, title, body):
         self.title = title
         self.body = body
+
+class User(db.Model):
+    id = db.Column(db.Integer, primary_key=True)
+    username = db.Column(db.String(120))
+    password = db.Column(db.String(120))
+
+    #need property blogs 
+
+    def __init__(self, username, password):
+        self.username = username
+        self.password = password
 
 @app.route('/')
 def index():
@@ -54,6 +66,17 @@ def new_post():
                 blog_title=blog_title, blog_body=blog_body)
     
     return render_template('newpost.html', title='New Entry')
+
+    @app.route('/signup')
+
+    @app.route('/login')
+
+    @app.route('/index')
+
+    @app.route('/')
+    def logout():
+
+        return redirect('/blog')
 
 if  __name__ == "__main__":
     app.run()
