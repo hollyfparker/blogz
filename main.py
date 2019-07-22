@@ -13,16 +13,16 @@ class Blog(db.Model):
     body = db.Column(db.Text)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body):
+    def __init__(self, title, body, owner):
         self.title = title
         self.body = body
+        self.owner = owner
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(120))
     password = db.Column(db.String(120))
-
-    #need property blogs 
+    blogs = db.relationship('Blog', backref='owner')
 
     def __init__(self, username, password):
         self.username = username
@@ -67,16 +67,49 @@ def new_post():
     
     return render_template('newpost.html', title='New Entry')
 
-    @app.route('/signup')
+    @app.route('/signup', methods=['POST', 'GET'])
+    def signup():
+        if request.method == 'POST':
+            email = request.form['email']
+            password = request.form['password']
+            verify = request.form['verify']
 
-    @app.route('/login')
+            #need to validate user data
+            existing_user = User.query.filter_by(email=email).first()
+        if not existing_user:
+            new_user = User(email, password)
+            db.session.add(new_user)
+            db.session.commit()
+            session['email'] = email
+            return redirect('/')
+        else:
+            return "<h1>Duplicate user</h1>"
+
+    return render_template('signup.html')
+            
+    @app.route('/login', methods=['POST', 'GET'])
+    def login():
+    if request.method == 'POST':
+        email = request.form['email']
+        password = request.form['password']
+        user = User.query.filter_by(email=email).first()
+        if user and user.password == password:
+            session['email'] = email
+            flash("Logged in")
+            return redirect('/')
+        else:
+            flash('User password incorrect, or user does not exist', 'error')
+
+    return render_template('login.html')
 
     @app.route('/index')
 
-    @app.route('/')
+    @app.route('/logout')
     def logout():
+        del session['email']
+        return redirect('/')
 
-        return redirect('/blog')
+
 
 if  __name__ == "__main__":
     app.run()
