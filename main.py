@@ -1,4 +1,4 @@
-from flask import Flask, request, redirect, render_template
+from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy 
 
 app = Flask(__name__)
@@ -28,8 +28,16 @@ class User(db.Model):
         self.username = username
         self.password = password
 
-@app.route('/')
+@app.route('/', methods=['POST', 'GET'])
 def index():
+    owner = User.query.filter_by(email=session['email']).first()
+
+    if request.method == 'POST':
+        blog_name = request.form['blog']
+        new_blog = Blog(blog_name, owner)
+        db.session.add(new_blog)
+        db.session.commit()
+
     return redirect('/blog')
 
 @app.route('/blog')
@@ -42,6 +50,12 @@ def blog():
     else:
         post = Blog.query.get(blog_id)
         return render_template('entry.html', post=post, title='Blog Entry')
+
+@app.before_request
+def require_login():
+    allowed_routes = ['login', 'signup', 'blog', 'index']
+    if request.endpoint not in allowed_routes and 'email' not in session:
+        return redirect('/login') 
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
@@ -89,14 +103,14 @@ def new_post():
             
     @app.route('/login', methods=['POST', 'GET'])
     def login():
-    if request.method == 'POST':
-        email = request.form['email']
-        password = request.form['password']
-        user = User.query.filter_by(email=email).first()
-        if user and user.password == password:
-            session['email'] = email
-            flash("Logged in")
-            return redirect('/')
+        if request.method == 'POST':
+            email = request.form['email']
+            password = request.form['password']
+            user = User.query.filter_by(email=email).first()
+            if user and user.password == password:
+                session['email'] = email
+                flash("Logged in")
+                return redirect('/')
         else:
             flash('User password incorrect, or user does not exist', 'error')
 
