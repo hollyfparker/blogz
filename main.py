@@ -28,16 +28,9 @@ class User(db.Model):
         self.username = username
         self.password = password
 
-@app.route('/', methods=['POST', 'GET'])
+
+@app.route("/")
 def index():
-    owner = User.query.filter_by(username=session[username]).first()
-
-    if request.method == 'POST':
-        blog_name = request.form['blog']
-        new_blog = Blog(blog_name, owner)
-        db.session.add(new_blog)
-        db.session.commit()
-
     return redirect('/blog')
 
 @app.route('/blog')
@@ -89,7 +82,7 @@ def new_post():
             verify = request.form['verify']
 
             #need to validate user data
-            existing_user = User.query.filter_by(username=username).first()
+            existing_user = User.query.filter_by(username='username').first()
         if not existing_user:
             new_user = User(username, password)
             db.session.add(new_user)
@@ -117,17 +110,17 @@ def new_post():
     return render_template('login.html')
 
     @app.route("/singleUser")
-    def singleuserblog():
+    def singleuser():
            
         if 'username' in session:
             welcome = "Logged in as: " + session['username']
-
             title = request.args.get('title')
+        
         if title:
             blog = Blog.query.filter_by(title= title).first()
-            author = User.query.filter_by(id= blog.owner_id).first()
+            author = User.query.filter_by(id=owner_id).first()
             return render_template("singleUser.html", 
-            title= existing_blog.title, body= existing_blog.body,
+            title= blog.title, body=blog.body,
             author= author.username, welcome= welcome)
     
     @app.route('/index')
