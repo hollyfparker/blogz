@@ -30,7 +30,7 @@ class User(db.Model):
 
 @app.route('/', methods=['POST', 'GET'])
 def index():
-    owner = User.query.filter_by(email=session['email']).first()
+    owner = User.query.filter_by(username=session[username]).first()
 
     if request.method == 'POST':
         blog_name = request.form['blog']
@@ -46,7 +46,7 @@ def blog():
 
     if blog_id == None:
         posts = Blog.query.all()
-        return render_template('blog.html', posts=posts, title='Build-a-blog')
+        return render_template('blog.html', posts=posts, title='Blogz')
     else:
         post = Blog.query.get(blog_id)
         return render_template('entry.html', post=post, title='Blog Entry')
@@ -54,7 +54,7 @@ def blog():
 @app.before_request
 def require_login():
     allowed_routes = ['login', 'signup', 'blog', 'index']
-    if request.endpoint not in allowed_routes and 'email' not in session:
+    if request.endpoint not in allowed_routes and 'username' not in session:
         return redirect('/login') 
 
 @app.route('/newpost', methods=['POST', 'GET'])
@@ -84,17 +84,17 @@ def new_post():
     @app.route('/signup', methods=['POST', 'GET'])
     def signup():
         if request.method == 'POST':
-            email = request.form['email']
+            username = request.form['username']
             password = request.form['password']
             verify = request.form['verify']
 
             #need to validate user data
-            existing_user = User.query.filter_by(email=email).first()
+            existing_user = User.query.filter_by(username=username).first()
         if not existing_user:
-            new_user = User(email, password)
+            new_user = User(username, password)
             db.session.add(new_user)
             db.session.commit()
-            session['email'] = email
+            session['username'] = username
             return redirect('/')
         else:
             return "<h1>Duplicate user</h1>"
@@ -104,11 +104,11 @@ def new_post():
     @app.route('/login', methods=['POST', 'GET'])
     def login():
         if request.method == 'POST':
-            email = request.form['email']
+            username = request.form['username']
             password = request.form['password']
-            user = User.query.filter_by(email=email).first()
+            user = User.query.filter_by(username=username).first()
             if user and user.password == password:
-                session['email'] = email
+                session['username'] = username
                 flash("Logged in")
                 return redirect('/')
         else:
@@ -116,11 +116,25 @@ def new_post():
 
     return render_template('login.html')
 
+    @app.route("/singleUser")
+    def singleuserblog():
+           
+        if 'username' in session:
+            welcome = "Logged in as: " + session['username']
+
+            title = request.args.get('title')
+        if title:
+            blog = Blog.query.filter_by(title= title).first()
+            author = User.query.filter_by(id= blog.owner_id).first()
+            return render_template("singleUser.html", 
+            title= existing_blog.title, body= existing_blog.body,
+            author= author.username, welcome= welcome)
+    
     @app.route('/index')
 
     @app.route('/logout')
     def logout():
-        del session['email']
+        del session['username']
         return redirect('/')
 
 
