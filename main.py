@@ -75,8 +75,9 @@ def new_post():
         if not body_error and not title_error:
             new_entry = Blog(blog_title, blog_body)     
             db.session.add(new_entry)
-            db.session.commit()        
-            return redirect('/blog?id={}'.format(new_entry.id)) 
+            db.session.commit() 
+                   
+            return redirect('/') 
         else:
             return render_template('newpost.html', title='New Entry', title_error=title_error, body_error=body_error, 
                 blog_title=blog_title, blog_body=blog_body)
