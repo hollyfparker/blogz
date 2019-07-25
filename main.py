@@ -31,16 +31,10 @@ class User(db.Model):
         self.password = password
 
 
-@app.route("/")
+@app.route('/')
 def index():
-    if request.method == 'POST':
-        title = request.form['blog']
-        new_blog = Blog(title, body)
-        db.session.add(new_blog)
-        db.session.commit()
-
-    blogs = Blog.query.all()
-    return redirect('/blog')
+    users = User.query.all()
+    return render_template('index.html', users=users)
 
 @app.route('/blog')
 def blog():
@@ -141,6 +135,8 @@ def singleuser():
     
 @app.route('/index')
 def home():
+
+
     return render_template('index.html')
 
 @app.route('/logout')
