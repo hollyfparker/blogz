@@ -2,6 +2,7 @@ from flask import Flask, request, redirect, render_template, session, flash
 from flask_sqlalchemy import SQLAlchemy 
 
 app = Flask(__name__)
+app.secret_key = "super secret key"
 app.config['DEBUG'] = True 
 app.config['SQLALCHEMY_DATABASE_URI'] = 'mysql+pymysql://blogz:admin@localhost:3306/blogz'
 app.config['SQLALCHEMY_ECHO'] = True
@@ -84,19 +85,25 @@ def new_post():
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
+    error = {"name_error": "", "pass_error": "", "verify_error": ""}
     if request.method == 'POST':
         username = request.form['username']
         password = request.form['password']
         verify = request.form['verify']
-
-            #need to validate user data
+        if username == "":
+            error["name_error"] = "Username cannot be blank"
+        if password == "":
+            error["pass_error"] = "Password cannot be blank"
+        else:
+            if password != verify:
+                error["verify_error"] = "Passwords must match!"
         existing_user = User.query.filter_by(username='username').first()
         if not existing_user:
             new_user = User(username, password)
             db.session.add(new_user)
             db.session.commit()
             session['username'] = username
-            return redirect('/')
+            return redirect('/newpost')
         else:
             return "<h1>Duplicate user</h1>"
 
@@ -111,7 +118,7 @@ def login():
         if user and user.password == password:
             session['username'] = username
             flash("Logged in")
-            return redirect('/')
+            return redirect('/newpost')
         else:
             flash('User password incorrect, or user does not exist', 'error')
 
