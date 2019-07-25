@@ -11,12 +11,13 @@ class Blog(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     title = db.Column(db.String(120))
     body = db.Column(db.Text)
+    #owner = db.Column(db.String)
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body, owner):
+    def __init__(self, title, body):
         self.title = title
         self.body = body
-        self.owner = owner
+        #self.owner = owner
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -31,6 +32,13 @@ class User(db.Model):
 
 @app.route("/")
 def index():
+    if request.method == 'POST':
+        title = request.form['blog']
+        new_blog = Blog(title, body)
+        db.session.add(new_blog)
+        db.session.commit()
+
+    blogs = Blog.query.all()
     return redirect('/blog')
 
 @app.route('/blog')
@@ -74,15 +82,15 @@ def new_post():
     
     return render_template('newpost.html', title='New Entry')
 
-    @app.route('/signup', methods=['POST', 'GET'])
-    def signup():
-        if request.method == 'POST':
-            username = request.form['username']
-            password = request.form['password']
-            verify = request.form['verify']
+@app.route('/signup', methods=['POST', 'GET'])
+def signup():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        verify = request.form['verify']
 
             #need to validate user data
-            existing_user = User.query.filter_by(username='username').first()
+        existing_user = User.query.filter_by(username='username').first()
         if not existing_user:
             new_user = User(username, password)
             db.session.add(new_user)
@@ -94,27 +102,27 @@ def new_post():
 
     return render_template('signup.html')
             
-    @app.route('/login', methods=['POST', 'GET'])
-    def login():
-        if request.method == 'POST':
-            username = request.form['username']
-            password = request.form['password']
-            user = User.query.filter_by(username=username).first()
-            if user and user.password == password:
-                session['username'] = username
-                flash("Logged in")
-                return redirect('/')
+@app.route('/login', methods=['POST', 'GET'])
+def login():
+    if request.method == 'POST':
+        username = request.form['username']
+        password = request.form['password']
+        user = User.query.filter_by(username=username).first()
+        if user and user.password == password:
+            session['username'] = username
+            flash("Logged in")
+            return redirect('/')
         else:
             flash('User password incorrect, or user does not exist', 'error')
 
     return render_template('login.html')
 
-    @app.route("/singleUser")
-    def singleuser():
-           
-        if 'username' in session:
-            welcome = "Logged in as: " + session['username']
-            title = request.args.get('title')
+@app.route("/singleUser")
+def singleuser():
+             
+    if 'username' in session:
+        welcome = "Logged in as: " + session['username']
+        title = request.args.get('title')
         
         if title:
             blog = Blog.query.filter_by(title= title).first()
@@ -123,14 +131,14 @@ def new_post():
             title= blog.title, body=blog.body,
             author= author.username, welcome= welcome)
     
-    @app.route('/index')
+@app.route('/index')
+def home():
+    return render_template('index.html')
 
-    @app.route('/logout')
-    def logout():
-        del session['username']
-        return redirect('/')
-
-
+@app.route('/logout')
+def logout():
+    del session['username']
+    return redirect('/')
 
 if  __name__ == "__main__":
     app.run()
