@@ -59,6 +59,7 @@ def new_post():
     if request.method == 'POST':
         blog_title = request.form['blog-title']
         blog_body = request.form['blog-entry']
+        blog_owner = request.form['username']
         title_error = ''
         body_error = ''
 
@@ -68,7 +69,7 @@ def new_post():
             body_error = "Start typing some content!"
 
         if not body_error and not title_error:
-            new_entry = Blog(blog_title, blog_body)     
+            new_entry = Blog(blog_title, blog_body, blog_owner)     
             db.session.add(new_entry)
             db.session.commit() 
                    
