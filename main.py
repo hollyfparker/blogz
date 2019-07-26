@@ -39,7 +39,6 @@ def index():
 @app.route('/blog')
 def blog():
     blog_id = request.args.get('id')
-    user_id = request.args.get('user')
 
     if blog_id == None:
         posts = Blog.query.all()
@@ -47,6 +46,7 @@ def blog():
     else:
         post = Blog.query.get(blog_id)
         return render_template('entry.html', post=post, title='Blog Entry')
+    
 
 @app.before_request
 def require_login():
