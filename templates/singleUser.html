@@ -1,16 +1,15 @@
 {% extends "base.html" %}
+
 {% block content %}
+       <h1>User Posts</h1>
 
-    <h3> {{ welcome }} </h3>
-    <h1> {{ title }} </h1>
-    <h3> 
-        <form id= "single_user" action= "/singleUser">
-            Author:
-            <input form= "single_user" type= "submit" 
-                class= "link_button" name= "user_link" 
-                value= "{{ author }}"/>
-        </form>
-    </h3>
-    <p> {{ body }} </p>
+        <hr>
+        {% for user in users %}
+          <a href="/blog?id={{entry.id}}"><h2>{{ entry.title }}</h2></a>
+          <p class="body-text">{{ entry.body }}</p>
+          <p class="user">Posted by: <a href="/blog?userid={{ entry.owner_id }}">{{ entry.owner.username }}</a></p>
 
+        </div>
+        {% endfor %}
+      </div>
 {% endblock %}

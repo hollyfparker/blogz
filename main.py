@@ -39,6 +39,7 @@ def index():
 @app.route('/blog')
 def blog():
     blog_id = request.args.get('id')
+    user_id = request.args.get('user')
 
     if blog_id == None:
         posts = Blog.query.all()
@@ -123,7 +124,7 @@ def login():
 def singleuser():
              
     if 'username' in session:
-        welcome = "Logged in as: " + session['username']
+
         title = request.args.get('title')
         
         if title:
@@ -131,7 +132,7 @@ def singleuser():
             author = User.query.filter_by(id=owner_id).first()
             return render_template("singleUser.html", 
             title= blog.title, body=blog.body,
-            author= author.username, welcome= welcome)
+            author= author.username)
     
 @app.route('/index')
 def home():
