@@ -11,9 +11,8 @@
     {% for post in posts %}
     
     <a href="/blog?id={{ post.id }}"><h2>{{ post.title }}</h2></a>
-    <p>{{post.body}}</p>
-    <hr>  
-    <a href = "/blog?user={{ post.username }}" >{{ post.username }}</a>     
+    <p>{{post.body}}</p>  
+    <a href = "/blog?user={{ post.username }}" >{{ user }}</a>     
     
     {% endfor %} 
     

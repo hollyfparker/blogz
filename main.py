@@ -36,17 +36,21 @@ def index():
     users = User.query.all()
     return render_template('index.html', users=users)
 
+    
 @app.route('/blog')
 def blog():
     blog_id = request.args.get('id')
     
 
     if blog_id == None:
+        user = User.query.filter_by(id=request.args.get('id')).first()
         posts = Blog.query.all()
-        return render_template('blog.html', posts=posts, title='Blogz')
+
+        return render_template('blog.html', posts=posts, user=user, title='Blogz')
     else:
+        user = User.query.filter_by(username=request.args.get('username')).first()
         post = Blog.query.get(blog_id)
-        return render_template('entry.html', post=post, title='Blog Entry')
+        return render_template('entry.html', post=post, user=user, title='Blog Entry')
     
 
 @app.before_request
@@ -133,10 +137,9 @@ def singleuser():
         
         if title:
             blog = Blog.query.filter_by(title= title).first()
-            author = User.query.filter_by(username=username).first()
+            
             return render_template("singleUser.html", 
-            title= blog.title, body=blog.body,
-            author= author.username)
+            title= blog.title, body=blog.body)
     
 @app.route('/index')
 def home():
