@@ -10,14 +10,12 @@
     
     {% for post in posts %}
     
-    <a href="/blog?id={{ post.id }}"><h2>{{ post.title }}</h2></a>
-    <p>{{post.body}}</p>  
-    <a href = "/blog?user={{ post.username }}" >{{ user }}</a>     
+    <h2><a href="/blog?id={{post.id}}">{{post.title}}</a></h2>
+    <p>{{post.body}}</p>    
+    <p><h3>written by <a href="/blog?user={{post.owner_id}}">{{post.owner.username}}</a></h3></p>    
     
     {% endfor %} 
     
-    
-
     {% endif %}
 
 {% endblock %}

@@ -15,10 +15,10 @@ class Blog(db.Model):
     username = db.Column(db.String(120))
     owner_id = db.Column(db.Integer, db.ForeignKey('user.id'))
 
-    def __init__(self, title, body, username):
+    def __init__(self, title, body, owner):
         self.title = title
         self.body = body
-        self.username = username 
+        self.owner = owner 
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,18 +39,18 @@ def index():
     
 @app.route('/blog')
 def blog():
+    posts = Blog.query.all()
     blog_id = request.args.get('id')
+    user_id = request.args.get('user')
     
-
-    if blog_id == None:
-        user = User.query.filter_by(id=request.args.get('id')).first()
-        posts = Blog.query.all()
-
-        return render_template('blog.html', posts=posts, user=user, title='Blogz')
-    else:
-        user = User.query.filter_by(username=request.args.get('username')).first()
+    if user_id:
+        posts = Blog.query.filter_by(owner_id=user_id)
+        return render_template('singleUser.html', posts=posts, header="User Posts")
+    if blog_id:
         post = Blog.query.get(blog_id)
-        return render_template('entry.html', post=post, user=user, title='Blog Entry')
+        return render_template('entry.html', post=post )
+
+    return render_template('blog.html', posts=posts, header='All The Posts')  
     
 
 @app.before_request
@@ -61,30 +61,27 @@ def require_login():
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
+    owner = User.query.filter_by(username=session['username']).first()
     if request.method == 'POST':
         blog_title = request.form['blog-title']
         blog_body = request.form['blog-entry']
-        blog_owner = User.query.filter_by(username = session['username']).first().id 
-        new_entry = Blog(blog_title, blog_body, blog_owner)
         title_error = ''
         body_error = ''
-
         if not blog_title:
-            title_error = "Enter a title for your new blog!"
+            title_error = "Please enter a title"
         if not blog_body:
-            body_error = "Start typing some content!"
-
+            body_error = "Please enter some content"
         if not body_error and not title_error:
-            new_entry = Blog(blog_title, blog_body, blog_owner)     
+            new_entry = Blog(blog_title, blog_body, owner)     
             db.session.add(new_entry)
-            db.session.commit() 
-                   
-            return redirect('/') 
+            db.session.commit()        
+            return redirect('/blog?id={}'.format(new_entry.id)) 
         else:
-            return render_template('newpost.html', title='New Entry', title_error=title_error, body_error=body_error, 
-                blog_title=blog_title, blog_body=blog_body)
-    
+            return render_template('newpost.html', title='New Entry', 
+                title_error=title_error, body_error=body_error, 
+                blog_title=blog_title, blog_body=blog_body)    
     return render_template('newpost.html', title='New Entry')
+
 
 @app.route('/signup', methods=['POST', 'GET'])
 def signup():
@@ -126,26 +123,6 @@ def login():
             flash('User password incorrect, or user does not exist', 'error')
 
     return render_template('login.html')
-
-@app.route("/singleUser")
-def singleuser():
-             
-    if 'username' in session:
-
-        title = request.args.get('title')
-        username = request.args.get('username')
-        
-        if title:
-            blog = Blog.query.filter_by(title= title).first()
-            
-            return render_template("singleUser.html", 
-            title= blog.title, body=blog.body)
-    
-@app.route('/index')
-def home():
-
-
-    return render_template('index.html')
 
 @app.route('/logout')
 def logout():
