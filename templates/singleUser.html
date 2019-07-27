@@ -5,10 +5,9 @@
 
         <hr>
         {% for user in users %}
-          <a href="/blog?id={{entry.id}}"><h2>{{ entry.title }}</h2></a>
-          <p class="body-text">{{ entry.body }}</p>
-          <p class="user">Posted by: <a href="/blog?userid={{ entry.owner_id }}">{{ entry.owner.username }}</a></p>
-
+          <a href="/blog?id={{user.id}}"><h2>{{ user.title }}</h2></a>
+          <p class="body-text">{{ user.body }}</p>
+        
         </div>
         {% endfor %}
       </div>

@@ -39,7 +39,7 @@ def index():
 @app.route('/blog')
 def blog():
     blog_id = request.args.get('id')
-
+    
 
     if blog_id == None:
         posts = Blog.query.all()
@@ -60,7 +60,7 @@ def new_post():
     if request.method == 'POST':
         blog_title = request.form['blog-title']
         blog_body = request.form['blog-entry']
-        blog_owner = User.query.filter_by(username = session['username']).first().id
+        blog_owner = User.query.filter_by(username = session['username']).first().id 
         new_entry = Blog(blog_title, blog_body, blog_owner)
         title_error = ''
         body_error = ''
@@ -133,7 +133,7 @@ def singleuser():
         
         if title:
             blog = Blog.query.filter_by(title= title).first()
-            author = User.query.filter_by(id=username).first()
+            author = User.query.filter_by(username=username).first()
             return render_template("singleUser.html", 
             title= blog.title, body=blog.body,
             author= author.username)
